@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Valentine?</title>
+
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  background: #ffd6ea;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.gif {
+  width: 220px;
+  margin-bottom: 15px;
+}
+
+h1 {
+  color: #ff1493;
+  margin-bottom: 30px;
+  transition: 0.3s;
+}
+
+.buttons {
+  position: relative;
+  width: 100%;
+  height: 300px;
+}
+
+button {
+  padding: 15px 40px;
+  font-size: 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  position: absolute;
+  transition: transform 0.3s;
+}
+
+#yesBtn {
+  background: #ff1493;
+  color: white;
+  left: 40%;
+  top: 120px;
+}
+
+#noBtn {
+  background: white;
+  color: #ff1493;
+  left: 55%;
+  top: 120px;
+}
+
+.message {
+  position: absolute;
+  color: #ff1493;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* Herzen */
+.heart {
+  position: fixed;
+  top: -20px;
+  font-size: 24px;
+  animation: fall linear forwards;
+}
+
+@keyframes fall {
+  to { transform: translateY(110vh); }
+}
+</style>
+</head>
+
+<body>
+
+<!-- GIF vor YES -->
+<img
+  id="gifBefore"
+  class="gif"
+  src="https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3MWFneGllcWp6ODZyOXZzM2NocHY2dm1xd2R4dGZtY3A3eWtuZmJkayZlcD12MV9naWZzX3NlYXJjaCZjdD1n/HB90p3BoehM3U0Qfja/giphy.gif"
+>
+
+<!-- GIF nach YES -->
+<img
+  id="gifAfter"
+  class="gif"
+  style="display:none;"
+  src="https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3MWFneGllcWp6ODZyOXZzM2NocHY2dm1xd2R4dGZtY3A3eWtuZmJkayZlcD12MV9naWZzX3NlYXJjaCZjdD1n/qKQQUKSSbWBkO2V3KX/giphy.gif"
+>
+
+<h1 id="headline">Do you want to be my Valentine?</h1>
+
+<div class="buttons">
+  <button id="yesBtn">YES</button>
+  <button id="noBtn">NO</button>
+</div>
+
+<script>
+const noBtn = document.getElementById("noBtn");
+const yesBtn = document.getElementById("yesBtn");
+const headline = document.getElementById("headline");
+
+const gifBefore = document.getElementById("gifBefore");
+const gifAfter = document.getElementById("gifAfter");
+
+const hoverTexts = [
+  "Echt jetzt!!!!",
+  "Ich weiß du willst es nicht",
+  "Fang mich doch"
+];
+
+const clickTexts = [
+  "Bist du dir sicher?",
+  "Ich glaube du machst Spaß",
+  "Bebiiiiiii bitteeeeeee"
+];
+
+let hoverTries = 0;
+let clickTries = 0;
+
+/* Sichere Position innerhalb des Containers */
+function getSafePositionInContainer(button, container) {
+  const padding = 10; // Abstand vom Rand
+  const maxX = Math.max(container.offsetWidth - button.offsetWidth - padding, padding);
+  const maxY = Math.max(container.offsetHeight - button.offsetHeight - padding, padding);
+
+  const x = Math.random() * maxX;
+  const y = Math.random() * maxY;
+
+  return { x, y };
+}
+
+/* NO ausweichen */
+noBtn.addEventListener("mouseenter", () => {
+  if (hoverTries < 3) {
+    const rect = noBtn.getBoundingClientRect();
+
+    // Alten Text an alter Position platzieren
+    const msg = document.createElement("div");
+    msg.className = "message";
+    msg.textContent = hoverTexts[hoverTries];
+    msg.style.left = rect.left + "px";
+    msg.style.top = rect.top + "px";
+    document.body.appendChild(msg);
+
+    hoverTries++;
+
+    // Neue sichere Position innerhalb des Containers
+    const container = document.querySelector(".buttons");
+    const pos = getSafePositionInContainer(noBtn, container);
+    noBtn.style.left = pos.x + "px";
+    noBtn.style.top = pos.y + "px";
+  }
+});
+
+/* NO klicken (ab 4. Versuch) */
+noBtn.addEventListener("click", () => {
+  if (hoverTries >= 3) {
+    if (clickTries < 3) {
+      headline.textContent = clickTexts[clickTries];
+      yesBtn.style.transform = `scale(${1 + (clickTries + 1) * 0.3})`;
+      clickTries++;
+    } else {
+      noBtn.remove();
+    }
+  }
+});
+
+/* YES klicken */
+yesBtn.addEventListener("click", () => {
+  headline.textContent = "Ich wusste doch das du ja sagst.";
+
+  gifBefore.style.display = "none";
+  gifAfter.style.display = "block";
+
+  const interval = setInterval(createHeart, 80); // dichter Regen
+  setTimeout(() => clearInterval(interval), 15000);
+});
+
+/* Herzen erzeugen */
+function createHeart() {
+  const hearts = ["❤️", "💖", "💕", "💘", "💗"];
+
+  for (let i = 0; i < 3; i++) { // mehrere Herzen gleichzeitig
+    const heart = document.createElement("div");
+    heart.className = "heart";
+    heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+
+    heart.style.left = Math.random() * window.innerWidth + "px";
+    heart.style.fontSize = (Math.random() * 20 + 20) + "px";
+    heart.style.animationDuration = (Math.random() * 2 + 2) + "s";
+
+    document.body.appendChild(heart);
+
+    setTimeout(() => heart.remove(), 5000);
+  }
+}
+</script>
+
+</body>
+</html>
